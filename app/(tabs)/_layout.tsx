@@ -5,6 +5,7 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -24,10 +25,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="teamView"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Team View',
+          tabBarIcon: ({ color }) => <FontAwesome6 size={20} name="shield" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="cupView"
+        options={{
+          title: 'Cup View',
+          tabBarIcon: ({ color }) => <FontAwesome6 size={20} name="trophy" color={color} />,
         }}
       />
     </Tabs>
