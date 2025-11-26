@@ -30,8 +30,8 @@ export function MatchBox({ lightColor, darkColor, ...otherProps }: MatchBoxProps
           <ThemedText>Team 1</ThemedText>
         </View> 
         <View style={styles.versus}>
-          <Entypo size={24} name="new" color={'#D0D0D0'} />
           <ThemedText>Time</ThemedText>
+          <Entypo size={24} name="new" color={'#D0D0D0'} />
           <ThemedText>Date</ThemedText>
         </View> 
         <View>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   team1: {
-       
+
   },
   versus: {
     justifyContent: 'center',
@@ -69,6 +69,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   team2: {
-    
+
   },
 });
