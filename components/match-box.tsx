@@ -17,27 +17,37 @@ export type MatchBoxProps = {
   matchDate?: string;
 };
 
-export function MatchBox({ lightColor, darkColor, ...otherProps }: MatchBoxProps) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
-  
+export function MatchBox({
+  team1Name = 'Team 1', 
+  team2Name = 'Team 2', 
+  matchTime = 'Time',
+  matchDate = 'Date',
+  cupName = 'Cup Name',
+  lightColor, 
+  darkColor, 
+  ...otherProps }: MatchBoxProps) {
+
+  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');  
 
   return ( 
     <ThemedView style={styles.container} {...otherProps}>
-      <ThemedText style={styles.cupName}>Cup Name</ThemedText>
+      <ThemedText style={styles.cupName}>{cupName}</ThemedText>
       <View style={styles.teamsContainer}>
-        <View >
+        <View style={styles.team}>
           <FontAwesome6 size={40} name="shield" color={'#D0D0D0'} />
-          <ThemedText>Team 1</ThemedText>
+          <ThemedText>{team1Name}</ThemedText>
         </View> 
-        <View style={styles.versus}>
-          <ThemedText>Time</ThemedText>
-          <Entypo size={24} name="new" color={'#D0D0D0'} />
-          <ThemedText>Date</ThemedText>
+        <View style={styles.versus}>          
+          <Entypo size={24} name="new" color={'#D0D0D0'} />          
         </View> 
-        <View>
+        <View style={[styles.team, styles.team2]}>
           <FontAwesome6 size={40} name="shield" color={'#D0D0D0'} />
-          <ThemedText>Team 2</ThemedText>
+          <ThemedText>{team2Name}</ThemedText>
         </View> 
+      </View>
+      <View style={{display:'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+        <ThemedText>{matchDate}</ThemedText>
+        <ThemedText>{matchTime}</ThemedText>
       </View>
     </ThemedView> 
   );
@@ -60,15 +70,16 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
   },
-  team1: {
-
+  team: {
+    width: '45%'
   },
   versus: {
+    width: '10%',
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1
   },
   team2: {
-
+    alignItems: 'flex-end'
   },
 });
