@@ -6,7 +6,7 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 
 export default function TabTwoScreen() {
 
-  const { premData, loading } = useGetLeagueData();
+  const { allMatchesToDisplay, loading } = useGetLeagueData();
 
   return (
     <ParallaxScrollView
@@ -16,7 +16,7 @@ export default function TabTwoScreen() {
       }>
       {
         loading ? <ActivityIndicator /> :
-        premData?.map((match: MatchData, index: number) => (
+        allMatchesToDisplay?.map((match: MatchData, index: number) => (
           <MatchBox
             team1Name={match.team1}
             team2Name={match.team2}

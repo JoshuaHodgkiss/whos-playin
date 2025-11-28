@@ -1,18 +1,13 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-
 import { MatchBox } from '@/components/match-box';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import Dropdown from '@/components/ui/dropdown';
-import { useGetLeagueData } from '@/services/getData';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 
 export default function TabTwoScreen() {
   const [team, setTeam] = useState<string | null>(null);
 
-  const { premData, loading } = useGetLeagueData();
-
-  console.log('data:', premData)
 
   const options = [
     { label: 'All teams', value: 'all' },
