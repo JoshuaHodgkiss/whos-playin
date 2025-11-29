@@ -12,11 +12,13 @@ import { useEffect, useState } from "react";
 //add leagues filter with options taken from data
 //add team logos if possible
 
-const API_TOKEN = "d299e99eeff34cd29095a0d674422b2d";
-const BASE_URL_DEV = "http://localhost:3001/api/matches";
-const BASE_URL_PROD = "https://api.football-data.org/v4";
-const CACHE_TTL = 1000 * 60 * 10; // 10 minutes cache
 const DEVELOPMENT = true; //set to true to use local proxy should come from an env file
+
+const API_TOKEN = "d299e99eeff34cd29095a0d674422b2d";
+const BASE_CHAMP_URL_DEV = "http://localhost:3001/api/champions-league/matches";
+const BASE_CHAMP_URL_PROD = "https://api.football-data.org/v4";
+
+const CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
 
 async function getCached(key: string) {
   const json = await AsyncStorage.getItem(key);
@@ -38,8 +40,8 @@ async function setCached(key: string, data: any) {
   );
 }
 
-export async function fetchMatchesCached(competitionCode: string) {
-  const cacheKey = `matches_${competitionCode}`;
+export async function fetchChampMatchesCached(competitionCode: string) {
+  const cacheKey = `champ_matches_${competitionCode}`;
   const cached = await getCached(cacheKey);
 
   if (cached) {
@@ -48,12 +50,10 @@ export async function fetchMatchesCached(competitionCode: string) {
 
   let url = ''
   if (DEVELOPMENT === true) {
-    url = `${BASE_URL_DEV}/${competitionCode}`;
+    url = `${BASE_CHAMP_URL_DEV}/${competitionCode}`;
   } else {
-    url = `${BASE_URL_PROD}/competitions/${competitionCode}`;
+    url = `${BASE_CHAMP_URL_PROD}/competitions/${competitionCode}`;
   }
-
-
 
   const res = await fetch(url, {
     headers: {
@@ -71,10 +71,10 @@ export async function fetchMatchesCached(competitionCode: string) {
 
 
 export function useGetLeagueData() {
-  const [premData, setPremData] = useState<MatchData[] | null>(null);
+  //const [premData, setPremData] = useState<MatchData[] | null>(null);
   const [premDataToDisplay, setPremDataToDisplay] = useState<MatchData[] | null>(null);
 
-  const [champLeagueData, setChampLeagueData] = useState<MatchData[] | null>(null);
+ // const [champLeagueData, setChampLeagueData] = useState<MatchData[] | null>(null);
   const [champLeagueDataToDisplay, setChampLeagueDataToDisplay] = useState<MatchData[] | null>(null);
 
   // const [FAData, setFAData] = useState<MatchData[] | null>(null);
@@ -103,7 +103,7 @@ export function useGetLeagueData() {
           league: json.name
           //league: 'Premier League'
         }));
-        setPremData(premDataFromJson);
+        //setPremData(premDataFromJson);
 
         setPremDataToDisplay(premDataFromJson.filter((match: MatchData) => {
           return match.date >= TODAY && match.date <= CUT_OFF;
@@ -120,7 +120,7 @@ export function useGetLeagueData() {
   }, []);
 
   useEffect(() => {
-    const champLeague = fetchMatchesCached("CL");
+    const champLeague = fetchChampMatchesCached("CL");
     console.log('champLeague', champLeague);
     champLeague.then((data) => {
       const champLeagueDataFromApi: MatchData[] = data.matches.map((match: any) => ({
@@ -130,7 +130,7 @@ export function useGetLeagueData() {
         team2: match.awayTeam.name,
         league: data.competition.name
       }));
-      setChampLeagueData(champLeagueDataFromApi);
+      //setChampLeagueData(champLeagueDataFromApi);
 
       setChampLeagueDataToDisplay(champLeagueDataFromApi.filter((match: MatchData) => {
         return match.date >= TODAY && match.date <= CUT_OFF;
