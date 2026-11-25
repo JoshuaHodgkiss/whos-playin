@@ -9,16 +9,14 @@ app.use(cors());
 const FOOTBALL_DATA_TOKEN = 'd299e99eeff34cd29095a0d674422b2d' //process.env.FOOTBALL_API_KEY;
 const FOOTBALL_API_KEY = 'a67e983ea3ff81ce272d3a46057ec144';
 
+const CURRENT_YEAR_STRING = new Date().getFullYear().toString();
+
 app.get("/api/champions-league/matches/:competition", async (req, res) => {
   const { competition } = req.params;
 
   try {
     // Log incoming request briefly for debugging
-    console.log(`Proxy hit /api/champions-league/matches/${competition} - incoming origin: ${req.headers.origin || 'none'}`);
-
-    // Masked token for debug (do not log full secret in production)
-    // const masked = API_TOKEN ? `${API_TOKEN.slice(0,4)}...${API_TOKEN.slice(-4)}` : 'no-token';
-    // console.log(`Using API token (masked): ${masked} (length=${API_TOKEN.length})`);
+    //console.log(`Proxy hit /api/champions-league/matches/${competition} - incoming origin: ${req.headers.origin || 'none'}`);
 
     const response = await fetch(
       `https://api.football-data.org/v4/competitions/${competition}/matches`,
@@ -32,7 +30,7 @@ app.get("/api/champions-league/matches/:competition", async (req, res) => {
       }
     );
 
-    console.log('Response', response);
+    //console.log('Response', response);
 
     if (!response.ok) {
       const body = await response.text();
@@ -49,19 +47,26 @@ app.get("/api/champions-league/matches/:competition", async (req, res) => {
   }
 });
 
-app.get("/api/your-endpoint/:param", async (req, res) => {
-  const { param } = req.params;
-  const YOUR_API_KEY = 'your_key_here';
+app.get("/football-api/:league/:season", async (req, res) => {
+  const { league, season } = req.params;
+  const seasonToUse = season || CURRENT_YEAR_STRING;
 
   try {
-    console.log(`Proxy hit /api/your-endpoint/${param}`);
+    console.log(`Proxy hit /football-api/${league}/${seasonToUse} - incoming origin: ${req.headers.origin || 'none'}`);
+
+    // Masked key for debug
+    // const maskedKey = FOOTBALL_API_KEY ? `${FOOTBALL_API_KEY.slice(0,4)}...${FOOTBALL_API_KEY.slice(-4)}` : 'no-key';
+    // console.log(`Using football-api key (masked): ${maskedKey} (length=${FOOTBALL_API_KEY.length})`);
+
+    console.log('URL FA CUP', `https://v3.football.api-sports.io/fixtures?league=${league}&season=${seasonToUse}`);
 
     const response = await fetch(
-      `https://api.example.com/v1/your-path/${param}`,
+      `https://v3.football.api-sports.io/fixtures?league=${league}&season=${seasonToUse}`,
       {
         headers: { 
-          "Authorization": `Bearer ${YOUR_API_KEY}`, // or "X-Auth-Token", etc.
+          "x-apisports-key": `${FOOTBALL_API_KEY}`, // or "X-Auth-Token", etc.
           "Accept": "application/json",
+          "Accept-Encoding": ""
         },
       }
     );

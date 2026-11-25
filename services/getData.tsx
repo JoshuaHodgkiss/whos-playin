@@ -14,11 +14,26 @@ import { useEffect, useState } from "react";
 
 const DEVELOPMENT = true; //set to true to use local proxy should come from an env file
 
-const API_TOKEN = "d299e99eeff34cd29095a0d674422b2d";
+const CHAMP_API_TOKEN = "d299e99eeff34cd29095a0d674422b2d";
 const BASE_CHAMP_URL_DEV = "http://localhost:3001/api/champions-league/matches";
 const BASE_CHAMP_URL_PROD = "https://api.football-data.org/v4";
 
+const FOOTBALL_API_TOKEN = "a67e983ea3ff81ce272d3a46057ec144";
+const BASE_FOOTBALL_API_DEV = "http://localhost:3001/football-api";
+const BASE_FOOTBALL_API_PROD = "" //"https://v3.football.api-sports.io";
+
+const BASE_WORLDCUP_API_DEV = 'https://worldcup26.ir/get';
+const BASE_WORLDCUP_API_PROD = "";
+
+export const WORLDCUP_ENDPOINTS = {
+  GAMES: 'games',
+  GROUPS: 'groups',
+  // TEAMS: 'teams',
+  // STADIUMS: 'stadiums',
+};
+
 const CACHE_TTL = 1000 * 60 * 60; // 1 hour cache
+const CURRENT_YEAR_STRING = new Date().getFullYear().toString();
 
 async function getCached(key: string) {
   const json = await AsyncStorage.getItem(key);
@@ -57,7 +72,7 @@ export async function fetchChampMatchesCached(competitionCode: string) {
 
   const res = await fetch(url, {
     headers: {
-      "X-Auth-Token": API_TOKEN
+      "X-Auth-Token": CHAMP_API_TOKEN
     },
   });
 
@@ -69,16 +84,79 @@ export async function fetchChampMatchesCached(competitionCode: string) {
   return json;
 }
 
+export async function fetchFootballApiCached(competitionCode: string, year: string) {
+  const cacheKey = `football_api_${competitionCode}_${year}`;
+  const cached = await getCached(cacheKey);
+
+  if (cached) {
+    return cached; // Return cached version
+  }
+
+  let url = ''
+  if (DEVELOPMENT === true) {
+    url = `${BASE_FOOTBALL_API_DEV}/${competitionCode}/${year}`;
+  } else {
+    //not correct yet
+    url = `${BASE_CHAMP_URL_PROD}/competitions/${competitionCode}/${year}`;
+  }
+
+  console.log('fetchFootballApiCached url', url);
+
+  const res = await fetch(url, {
+    headers: {
+      "X-Auth-Token": FOOTBALL_API_TOKEN
+    },
+  });
+
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+
+  const json = await res.json();
+  await setCached(cacheKey, json);
+
+  return json;
+}
+
+export async function fetchWorldCupApiCached(endpoint: string) {
+  const cacheKey = `worldcup26_${endpoint}`;
+  const cached = await getCached(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  let url = '';
+
+  if (DEVELOPMENT === true) {
+    // If you're proxying through your local server
+    url = `${BASE_WORLDCUP_API_DEV}/${endpoint}`;
+  } else {
+    url = `${BASE_WORLDCUP_API_PROD}/${endpoint}`;
+  }
+
+  console.log('fetchWorldCupApiCached url', url);
+
+  const res = await fetch(url, {
+      headers: {
+      "Cross-Origin-Opener-Policy": "*",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`WorldCup26 API error: ${res.status}`);
+  }
+
+  const json = await res.json();
+
+  await setCached(cacheKey, json);
+
+  return json;
+}
+
 
 export function useGetLeagueData() {
-  //const [premData, setPremData] = useState<MatchData[] | null>(null);
+
   const [premDataToDisplay, setPremDataToDisplay] = useState<MatchData[] | null>(null);
-
- // const [champLeagueData, setChampLeagueData] = useState<MatchData[] | null>(null);
   const [champLeagueDataToDisplay, setChampLeagueDataToDisplay] = useState<MatchData[] | null>(null);
-
-  // const [FAData, setFAData] = useState<MatchData[] | null>(null);
-  // const [FADataToDisplay, setFADataToDisplay] = useState<MatchData[] | null>(null);
 
   const [allMatchesToDisplay, setAllMatchesToDisplay] = useState<MatchData[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -140,6 +218,38 @@ export function useGetLeagueData() {
     });
 
   }, []);
+
+  useEffect(() => {
+    const worldCupGames = fetchWorldCupApiCached(WORLDCUP_ENDPOINTS.GAMES);
+    console.log('worldCupGames', worldCupGames);
+
+  }, []);
+
+
+
+  // useEffect(() => {
+  //   const faCup = fetchFootballApiCached("45", CURRENT_YEAR_STRING); //45 is FA cup
+  //   console.log('faCup', faCup);
+  //   faCup.then((data) => {
+  //     console.log('faCup data', data);
+
+  //     // const faCupDataFromApi: MatchData[] = data.matches.map((match: any) => ({
+  //     //   date: match.utcDate.split('T')[0],
+  //     //   time: match.utcDate.split('T')[1].slice(0, 5),
+  //     //   team1: match.homeTeam.name,
+  //     //   team2: match.awayTeam.name,
+  //     //   league: data.competition.name
+  //     // }));
+
+  //     // setFADataToDisplay(faCupDataFromApi.filter((match: MatchData) => {
+  //     //   return match.date >= TODAY && match.date <= CUT_OFF;
+  //     // }));
+
+  //   }).catch((error) => {
+  //     console.error("Error fetching FA data:", error);
+  //   });
+
+  // }, []);
 
   useEffect(() => {
     const combinedMatches = [... (premDataToDisplay || []), ... (champLeagueDataToDisplay || [])];
